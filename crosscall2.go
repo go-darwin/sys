@@ -7,44 +7,8 @@
 package sys
 
 import (
-	_ "runtime" // for go:linkname
 	"unsafe"
 )
-
-//go:linkname runtime_cgocall runtime.cgocall
-//go:nosplit
-func runtime_cgocall(fn unsafe.Pointer, arg uintptr) int32
-
-// CgoCall ...
-func CgoCall(fn unsafe.Pointer, arg uintptr) int32 {
-	return runtime_cgocall(fn, arg)
-}
-
-//go:linkname runtime_gostring runtime.gostring
-//go:nosplit
-func runtime_gostring(p *byte) string
-
-// C string to Go string.
-func GoString(p *byte) string {
-	return runtime_gostring(p)
-}
-
-//go:linkname runtime_gostringn runtime.gostringn
-//go:nosplit
-func runtime_gostringn(p *byte, l int) string
-
-// C string, length to Go string.
-func GoStringN(p *byte, l int) string {
-	return runtime_gostringn(p, l)
-}
-
-//go:linkname runtime_gobytes runtime.gobytes
-func runtime_gobytes(p *byte, n int) (b []byte)
-
-// C pointer, length to Go []byte,
-func GoBytes(p *byte, n int) []byte {
-	return runtime_gobytes(p, n)
-}
 
 //go:noescape
 func crosscall2(fn, a unsafe.Pointer, n int32, ctxt uintptr)
