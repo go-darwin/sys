@@ -17,21 +17,26 @@ TEXT ·crosscall2(SB), NOSPLIT, $0-0
 	PUSH_REGS_HOST_TO_ABI0()
 
 	// Make room for arguments to cgocallback.
-	ADJSP	$0x18
+	ADJSP $0x18
+
 #ifndef GOOS_windows
-	MOVQ	DI, 0x0(SP)	/* fn */
-	MOVQ	SI, 0x8(SP)	/* arg */
+	MOVQ DI, 0x0(SP) // fn
+	MOVQ SI, 0x8(SP) // arg
+
 	// Skip n in DX.
-	MOVQ	CX, 0x10(SP)	/* ctxt */
+	MOVQ CX, 0x10(SP) // ctxt
+
 #else
-	MOVQ	CX, 0x0(SP)	/* fn */
-	MOVQ	DX, 0x8(SP)	/* arg */
+	MOVQ CX, 0x0(SP) // fn
+	MOVQ DX, 0x8(SP) // arg
+
 	// Skip n in R8.
-	MOVQ	R9, 0x10(SP)	/* ctxt */
+	MOVQ R9, 0x10(SP) // ctxt
+
 #endif
 
-	CALL	runtime·cgocallback(SB)
+	CALL runtime·cgocallback(SB)
 
-	ADJSP	$-0x18
+	ADJSP $-0x18
 	POP_REGS_HOST_TO_ABI0()
 	RET
