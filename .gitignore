@@ -49,6 +49,5 @@ _testmain.go
 # coverage
 coverage.*
 
-# binary, tools
-bin/
-hack/tools/
+# tools
+tools/bin/
