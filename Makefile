@@ -3,7 +3,7 @@ GO_LDFLAGS := -s -w "-extldflags=-static"
 GO_INSTALLSUFFIX := netgo
 GO_FLAGS = -trimpath -tags='${GO_TAGS}' -ldflags='${GO_LDFLAGS}' -installsuffix='${GO_INSTALLSUFFIX}'
 
-GO_ASM_PKGS := $(shell go list -f='{{ if .SFiles }}{{ .Dir }}{{ end }}' ./...)
+GO_ASM_PKGS := $(shell go list -f='{{ join .SFiles " " }}' ./... | grep -v -e 'crosscall2.s')
 
 GO_TEST ?= ${TOOLS_BIN}/gotestsum --
 GO_TEST_FLAGS ?= -race -count=1
@@ -76,7 +76,7 @@ tools/bin/%: ${TOOLS_DIR}/go.mod ${TOOLS_DIR}/go.sum
 .PHONY: clean
 clean:  ## Cleanups binaries and extra files in the package.
 	$(call target)
-	@$(RM) -rf *.out *.test *.prof trace.txt **/_obj ${TOOLS_BIN}
+	@$(RM) -rf *.out *.test *.prof trace.txt _obj ${TOOLS_BIN}
 
 
 # ----------------------------------------------------------------------------
