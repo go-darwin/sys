@@ -17,6 +17,8 @@ TOOLS := $(shell cd ${TOOLS_DIR} && go list -v -x -f '{{ join .Imports " " }}' -
 
 JOBS := $(shell getconf _NPROCESSORS_CONF)
 
+ztypes_darwin_amd64.go:
+	@go tool cgo -srcdir . -godefs -import_runtime_cgo=false -import_syscall=false defs_darwin_amd64.go | tee ztypes_darwin_amd64.go; gofmt -s -w ztypes_darwin_amd64.go
 
 ##@ fmt, lint
 
