@@ -20,13 +20,13 @@ func CgoCall(fn unsafe.Pointer, arg uintptr) int32 {
 	return runtime_cgocall(fn, arg)
 }
 
-//go:linkname runtime_gostring runtime.gostring
+//go:linkname runtime_gostringnocopy runtime.gostringnocopy
 //go:nosplit
-func runtime_gostring(p *byte) string
+func runtime_gostringnocopy(p *byte) string
 
 // GoString C string to Go string.
 func GoString(p *byte) string {
-	return runtime_gostring(p)
+	return runtime_gostringnocopy(p)
 }
 
 //go:linkname runtime_gostringn runtime.gostringn
