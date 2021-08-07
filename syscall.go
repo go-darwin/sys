@@ -7,9 +7,12 @@
 package sys
 
 import (
-	_ "unsafe" // for go:linkname
+	"bytes"
+	"unsafe"
 
 	"golang.org/x/sys/unix"
+
+	"go-darwin.dev/sys/unsafeheader"
 )
 
 //go:linkname syscall_syscall syscall.syscall
@@ -113,4 +116,54 @@ func syscall_rawSyscall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, er
 // RawSyscall6 calls a function in libc on behalf of the syscall package.
 func RawSyscall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err unix.Errno) {
 	return syscall_rawSyscall6(fn, a1, a2, a3, a4, a5, a6)
+}
+
+// ByteSliceFromString returns a NUL-terminated slice of bytes
+// containing the text of s.
+func ByteSliceFromString(s string) []byte {
+	a := make([]byte, len(s)+1)
+	copy(a, s)
+
+	return a
+}
+
+// BytePtrFromString returns a pointer to a NUL-terminated array of
+// bytes containing the text of s.
+func BytePtrFromString(s string) *byte {
+	a := ByteSliceFromString(s)
+
+	return &a[0]
+}
+
+// ByteSliceToString returns a string form of the text represented by the slice s, with a terminating NUL and any
+// bytes after the NUL removed.
+func ByteSliceToString(s []byte) string {
+	if i := bytes.IndexByte(s, 0); i != -1 {
+		s = s[:i]
+	}
+
+	return string(s)
+}
+
+// BytePtrToString takes a pointer to a sequence of text and returns the corresponding string.
+// If the pointer is nil, it returns the empty string. It assumes that the text sequence is terminated
+// at a zero byte; if the zero byte is not present, the program may crash.
+func BytePtrToString(p *byte) string {
+	if p == nil || *p == 0 {
+		return ""
+	}
+
+	// Find NUL terminator.
+	n := 0
+	for ptr := unsafe.Pointer(p); *(*byte)(ptr) != 0; n++ {
+		ptr = unsafe.Pointer(uintptr(ptr) + 1)
+	}
+
+	var b []byte
+	h := (*unsafeheader.Slice)(unsafe.Pointer(&b))
+	h.Data = unsafe.Pointer(p)
+	h.Len = n
+	h.Cap = n
+
+	return string(b)
 }
