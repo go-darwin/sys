@@ -96,6 +96,37 @@ func Syscall6X(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err unix.Err
 	return syscall_syscall6X(fn, a1, a2, a3, a4, a5, a6)
 }
 
+//go:linkname syscall_syscall9 syscall.Syscall9
+func syscall_syscall9(fn, a1, a2, a3, a4, a5, a6, a7, a8, a9 uintptr) (r1, r2 uintptr, err unix.Errno)
+
+// Syscall9 calls a function in libc on behalf of the syscall package.
+//
+// Syscall9 takes a pointer to a struct like:
+//  struct {
+//   fn    uintptr
+//   a1    uintptr
+//   a2    uintptr
+//   a3    uintptr
+//   a4    uintptr
+//   a5    uintptr
+//   a6    uintptr
+//   a7    uintptr
+//   a8    uintptr
+//   a9    uintptr
+//   r1    uintptr
+//   r2    uintptr
+//   err   uintptr
+//  }
+//
+// Syscall9 must be called on the g0 stack with the
+// C calling convention (use libcCall).
+//
+// Syscall9 expects a 32-bit result and tests for 32-bit -1
+// to decide there was an error.
+func Syscall9(fn, a1, a2, a3, a4, a5, a6, a7, a8, a9 uintptr) (r1, r2 uintptr, err unix.Errno) {
+	return unix.Syscall9(fn, a1, a2, a3, a4, a5, a6, a7, a8, a9)
+}
+
 //go:linkname syscall_syscallPtr syscall.syscallPtr
 func syscall_syscallPtr(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err unix.Errno)
 
@@ -120,6 +151,9 @@ func syscall_rawSyscall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, er
 func RawSyscall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err unix.Errno) {
 	return syscall_rawSyscall6(fn, a1, a2, a3, a4, a5, a6)
 }
+
+// RawSyscall9 calls a function in libc on behalf of the syscall package.
+func RawSyscall9(fn, a1, a2, a3, a4, a5, a6, a7, a8, a9 uintptr) (r1, r2 uintptr, err unix.Errno)
 
 // ByteSliceFromString returns a NUL-terminated slice of bytes
 // containing the text of s.
