@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2021 The Go Darwin Authors
 // SPDX-License-Identifier: BSD-3-Clause
 
-//go:build darwin && amd64 && gc
-// +build darwin,amd64,gc
+//go:build darwin && gc
+// +build darwin,gc
 
 package sys
 
