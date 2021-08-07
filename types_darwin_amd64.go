@@ -26,6 +26,7 @@ type (
 	C_char     = c_char
 	C_float    = c_float
 	C_double   = c_double
+	C_size_t   = c_size_t
 )
 
 // list of common C types size.

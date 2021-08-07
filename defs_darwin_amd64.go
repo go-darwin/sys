@@ -37,6 +37,7 @@ type (
 	c_char     C.char
 	c_float    C.float
 	c_double   C.double
+	c_size_t   C.size_t
 )
 
 type kernReturn C.kern_return_t

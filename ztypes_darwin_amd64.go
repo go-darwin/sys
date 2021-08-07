@@ -20,6 +20,7 @@ type (
 	c_char     int8
 	c_float    float32
 	c_double   float64
+	c_size_t   uint64
 )
 
 type kernReturn int32
