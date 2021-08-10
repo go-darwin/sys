@@ -19,29 +19,3 @@ func runtime_cgocall(fn unsafe.Pointer, arg uintptr) int32
 func CgoCall(fn unsafe.Pointer, arg uintptr) int32 {
 	return runtime_cgocall(fn, arg)
 }
-
-//go:linkname runtime_gostringnocopy runtime.gostringnocopy
-//go:nosplit
-func runtime_gostringnocopy(p *byte) string
-
-// GoString C string to Go string.
-func GoString(p *byte) string {
-	return runtime_gostringnocopy(p)
-}
-
-//go:linkname runtime_gostringn runtime.gostringn
-//go:nosplit
-func runtime_gostringn(p *byte, l int) string
-
-// GoStringN l length C string to Go string.
-func GoStringN(p *byte, l int) string {
-	return runtime_gostringn(p, l)
-}
-
-//go:linkname runtime_gobytes runtime.gobytes
-func runtime_gobytes(p *byte, n int) (b []byte)
-
-// GoBytes n length C pointer to Go []byte.
-func GoBytes(p *byte, n int) []byte {
-	return runtime_gobytes(p, n)
-}
