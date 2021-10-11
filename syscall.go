@@ -12,9 +12,10 @@ import (
 
 	"golang.org/x/sys/unix"
 
-	"go-darwin.dev/sys/unsafeheader"
+	"github.com/go-darwin/sys/unsafeheader"
 )
 
+//go:noescape
 //go:linkname syscall_syscall syscall.syscall
 func syscall_syscall(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err unix.Errno)
 
@@ -40,6 +41,7 @@ func Syscall(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err unix.Errno) {
 	return syscall_syscall(fn, a1, a2, a3)
 }
 
+//go:noescape
 //go:linkname syscall_syscall6 syscall.syscall6
 func syscall_syscall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err unix.Errno)
 
@@ -68,6 +70,7 @@ func Syscall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err unix.Errn
 	return syscall_syscall6(fn, a1, a2, a3, a4, a5, a6)
 }
 
+//go:noescape
 //go:linkname syscall_syscall6X syscall.syscall6X
 func syscall_syscall6X(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err unix.Errno)
 
@@ -96,6 +99,7 @@ func Syscall6X(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err unix.Err
 	return syscall_syscall6X(fn, a1, a2, a3, a4, a5, a6)
 }
 
+//go:noescape
 //go:linkname syscall_syscall9 syscall.Syscall9
 func syscall_syscall9(fn, a1, a2, a3, a4, a5, a6, a7, a8, a9 uintptr) (r1, r2 uintptr, err unix.Errno)
 
@@ -127,6 +131,7 @@ func Syscall9(fn, a1, a2, a3, a4, a5, a6, a7, a8, a9 uintptr) (r1, r2 uintptr, e
 	return unix.Syscall9(fn, a1, a2, a3, a4, a5, a6, a7, a8, a9)
 }
 
+//go:noescape
 //go:linkname syscall_syscallPtr syscall.syscallPtr
 func syscall_syscallPtr(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err unix.Errno)
 
@@ -136,6 +141,7 @@ func SyscallPtr(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err unix.Errno) {
 	return syscall_syscallPtr(fn, a1, a2, a3)
 }
 
+//go:noescape
 //go:linkname syscall_rawSyscall syscall.rawSyscall
 func syscall_rawSyscall(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err unix.Errno)
 
@@ -144,6 +150,7 @@ func RawSyscall(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err unix.Errno) {
 	return syscall_rawSyscall(fn, a1, a2, a3)
 }
 
+//go:noescape
 //go:linkname syscall_rawSyscall6 syscall.rawSyscall6
 func syscall_rawSyscall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err unix.Errno)
 
@@ -152,6 +159,7 @@ func RawSyscall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err unix.E
 	return syscall_rawSyscall6(fn, a1, a2, a3, a4, a5, a6)
 }
 
+//go:noescape
 // RawSyscall9 calls a function in libc on behalf of the syscall package.
 func RawSyscall9(fn, a1, a2, a3, a4, a5, a6, a7, a8, a9 uintptr) (r1, r2 uintptr, err unix.Errno)
 

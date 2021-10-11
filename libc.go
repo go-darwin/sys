@@ -11,8 +11,9 @@ import (
 	"unsafe"
 )
 
-//go:linkname libcCall runtime.libcCall
 //go:nosplit
+//go:noescape
+//go:linkname libcCall runtime.libcCall
 func libcCall(fn, arg unsafe.Pointer) int32
 
 // LibcCall call fn with arg as its argument. Return what fn returns.

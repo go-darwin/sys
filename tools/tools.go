@@ -11,5 +11,5 @@ import (
 	_ "gotest.tools/gotestsum"
 	_ "mvdan.cc/gofumpt"
 
-	_ "go-darwin.dev/tools/cmd/asmvet"
+	_ "github.com/go-darwin/tools/cmd/asmvet"
 )

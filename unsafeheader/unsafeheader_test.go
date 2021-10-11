@@ -10,7 +10,7 @@ import (
 	"testing"
 	"unsafe"
 
-	"go-darwin.dev/sys/unsafeheader"
+	"github.com/go-darwin/sys/unsafeheader"
 )
 
 // TestTypeMatchesReflectType ensures that the name and layout of the
