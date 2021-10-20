@@ -1,8 +1,8 @@
-// SPDX-FileCopyrightText: 2021 The Go Darwin Authors
+// Copyright 2021 The Go Darwin Authors
 // SPDX-License-Identifier: BSD-3-Clause
 
-//go:build darwin && gc
-// +build darwin,gc
+//go:build darwin
+// +build darwin
 
 package sys
 
@@ -10,14 +10,8 @@ import (
 	"bytes"
 	"unsafe"
 
-	"golang.org/x/sys/unix"
-
 	"github.com/go-darwin/sys/unsafeheader"
 )
-
-//go:noescape
-//go:linkname syscall_syscall syscall.syscall
-func syscall_syscall(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err unix.Errno)
 
 // Syscall calls a function in libc on behalf of the syscall package.
 //
@@ -37,13 +31,9 @@ func syscall_syscall(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err unix.Errno)
 //
 // Syscall expects a 32-bit result and tests for 32-bit -1
 // to decide there was an error.
-func Syscall(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err unix.Errno) {
-	return syscall_syscall(fn, a1, a2, a3)
-}
-
 //go:noescape
-//go:linkname syscall_syscall6 syscall.syscall6
-func syscall_syscall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err unix.Errno)
+//go:linkname Syscall syscall.syscall
+func Syscall(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err Errno)
 
 // Syscall6 calls a function in libc on behalf of the syscall package.
 //
@@ -66,13 +56,9 @@ func syscall_syscall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err u
 //
 // Syscall6 expects a 32-bit result and tests for 32-bit -1
 // to decide there was an error.
-func Syscall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err unix.Errno) {
-	return syscall_syscall6(fn, a1, a2, a3, a4, a5, a6)
-}
-
 //go:noescape
-//go:linkname syscall_syscall6X syscall.syscall6X
-func syscall_syscall6X(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err unix.Errno)
+//go:linkname Syscall6 syscall.syscall6
+func Syscall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno)
 
 // Syscall6X calls a function in libc on behalf of the syscall package.
 //
@@ -95,13 +81,9 @@ func syscall_syscall6X(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err 
 //
 // Syscall6X is like syscall6 but expects a 64-bit result
 // and tests for 64-bit -1 to decide there was an error.
-func Syscall6X(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err unix.Errno) {
-	return syscall_syscall6X(fn, a1, a2, a3, a4, a5, a6)
-}
-
 //go:noescape
-//go:linkname syscall_syscall9 syscall.Syscall9
-func syscall_syscall9(fn, a1, a2, a3, a4, a5, a6, a7, a8, a9 uintptr) (r1, r2 uintptr, err unix.Errno)
+//go:linkname Syscall6X syscall.syscall6X
+func Syscall6X(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno)
 
 // Syscall9 calls a function in libc on behalf of the syscall package.
 //
@@ -127,41 +109,29 @@ func syscall_syscall9(fn, a1, a2, a3, a4, a5, a6, a7, a8, a9 uintptr) (r1, r2 ui
 //
 // Syscall9 expects a 32-bit result and tests for 32-bit -1
 // to decide there was an error.
-func Syscall9(fn, a1, a2, a3, a4, a5, a6, a7, a8, a9 uintptr) (r1, r2 uintptr, err unix.Errno) {
-	return unix.Syscall9(fn, a1, a2, a3, a4, a5, a6, a7, a8, a9)
-}
-
 //go:noescape
-//go:linkname syscall_syscallPtr syscall.syscallPtr
-func syscall_syscallPtr(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err unix.Errno)
+//go:linkname Syscall9 syscall.Syscall9
+func Syscall9(fn, a1, a2, a3, a4, a5, a6, a7, a8, a9 uintptr) (r1, r2 uintptr, err Errno)
 
 // SyscallPtr is like syscallX except that the libc function reports an
 // error by returning NULL and setting errno.
-func SyscallPtr(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err unix.Errno) {
-	return syscall_syscallPtr(fn, a1, a2, a3)
-}
-
 //go:noescape
-//go:linkname syscall_rawSyscall syscall.rawSyscall
-func syscall_rawSyscall(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err unix.Errno)
+//go:linkname SyscallPtr syscall.syscallPtr
+func SyscallPtr(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err Errno)
 
 // RawSyscall calls a function in libc on behalf of the syscall package.
-func RawSyscall(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err unix.Errno) {
-	return syscall_rawSyscall(fn, a1, a2, a3)
-}
-
 //go:noescape
-//go:linkname syscall_rawSyscall6 syscall.rawSyscall6
-func syscall_rawSyscall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err unix.Errno)
+//go:linkname RawSyscall syscall.rawSyscall
+func RawSyscall(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err Errno)
 
 // RawSyscall6 calls a function in libc on behalf of the syscall package.
-func RawSyscall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err unix.Errno) {
-	return syscall_rawSyscall6(fn, a1, a2, a3, a4, a5, a6)
-}
+//go:noescape
+//go:linkname RawSyscall6 syscall.rawSyscall6
+func RawSyscall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno)
 
 //go:noescape
 // RawSyscall9 calls a function in libc on behalf of the syscall package.
-func RawSyscall9(fn, a1, a2, a3, a4, a5, a6, a7, a8, a9 uintptr) (r1, r2 uintptr, err unix.Errno)
+func RawSyscall9(fn, a1, a2, a3, a4, a5, a6, a7, a8, a9 uintptr) (r1, r2 uintptr, err Errno)
 
 // ByteSliceFromString returns a NUL-terminated slice of bytes
 // containing the text of s.
