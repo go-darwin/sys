@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 The Go Darwin Authors
+// Copyright 2021 The Go Darwin Authors
 // SPDX-License-Identifier: BSD-3-Clause
 
 //go:build ignore
@@ -7,14 +7,13 @@
 package sys
 
 /*
-#cgo CFLAGS: -mmacosx-version-min=10.6
+#cgo CFLAGS: -mmacosx-version-min=12.0
 
 typedef long long long_long;
 
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-
 #include <libproc.h>
 #include <mach/mach.h>
 */

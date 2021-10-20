@@ -1,8 +1,8 @@
-// SPDX-FileCopyrightText: 2021 The Go Darwin Authors
+// Copyright 2021 The Go Darwin Authors
 // SPDX-License-Identifier: BSD-3-Clause
 
-//go:build darwin && gc
-// +build darwin,gc
+//go:build darwin
+// +build darwin
 
 package sys
 
@@ -70,10 +70,10 @@ func RawStringTmp(buf *TmpBuf, l int) (s string, b []byte)
 // and otherwise intrinsified by the compiler.
 //
 // Some internal compiler optimizations use this function.
-// - Used for m[T1{... Tn{..., string(k), ...} ...}] and m[string(k)]
+//  - Used for m[T1{... Tn{..., string(k), ...} ...}] and m[string(k)]
 //   where k is []byte, T1 to Tn is a nesting of struct and array literals.
-// - Used for "<"+string(b)+">" concatenation where b is []byte.
-// - Used for string(b)=="foo" comparison where b is []byte.
+//  - Used for "<"+string(b)+">" concatenation where b is []byte.
+//  - Used for string(b)=="foo" comparison where b is []byte.
 //go:linkname SliceByteToStringTmp runtime.slicebytetostringtmp
 func SliceByteToStringTmp(ptr *byte, n int) (str string)
 
@@ -91,14 +91,14 @@ func SliceRuneToString(buf *TmpBuf, a []rune) string
 
 // StringStruct actual string type struct.
 type StringStruct struct {
-	str unsafe.Pointer
-	len int
+	Str    unsafe.Pointer
+	Length int
 }
 
 // StringStructDWARF variant with *byte pointer type for DWARF debugging.
 type StringStructDWARF struct {
-	str *byte
-	len int
+	Str    *byte
+	Length int
 }
 
 // StringStructOf converts a sp to StringStruct.
@@ -129,81 +129,10 @@ func RawRuneSlice(size int) (b []rune)
 //go:linkname GoBytes runtime.gobytes
 func GoBytes(p *byte, n int) (b []byte)
 
-// GoString converts a byte pointer to a string.
-// This function **NOT** used by C.GoString. GostringNoCopy does.
-//go:linkname GoString runtime.gostring
-func GoString(p *byte) string
-
 // GostringN converts a l length C string to Go string.
 // This function used by C.GostringN.
-//go:linkname GostringN runtime.gostringn
-func GostringN(p *byte, l int) string
-
-func hasPrefix(s, prefix string) bool {
-	return len(s) >= len(prefix) && s[:len(prefix)] == prefix
-}
-
-const (
-	maxUint = ^uint(0)
-	maxInt  = int(maxUint >> 1)
-)
-
-// atoi parses an int from a string s.
-// The bool result reports whether s is a number
-// representable by a value of type int.
-func atoi(s string) (int, bool) {
-	if s == "" {
-		return 0, false
-	}
-
-	neg := false
-	if s[0] == '-' {
-		neg = true
-		s = s[1:]
-	}
-
-	un := uint(0)
-	for i := 0; i < len(s); i++ {
-		c := s[i]
-		if c < '0' || c > '9' {
-			return 0, false
-		}
-		if un > maxUint/10 {
-			// overflow
-			return 0, false
-		}
-		un *= 10
-		un1 := un + uint(c) - '0'
-		if un1 < un {
-			// overflow
-			return 0, false
-		}
-		un = un1
-	}
-
-	if !neg && un > uint(maxInt) {
-		return 0, false
-	}
-	if neg && un > uint(maxInt)+1 {
-		return 0, false
-	}
-
-	n := int(un)
-	if neg {
-		n = -n
-	}
-
-	return n, true
-}
-
-// atoi32 is like atoi but for integers
-// that fit into an int32.
-func atoi32(s string) (int32, bool) {
-	if n, ok := atoi(s); n == int(int32(n)) {
-		return int32(n), ok
-	}
-	return 0, false
-}
+//go:linkname GoStringN runtime.gostringn
+func GoStringN(p *byte, l int) string
 
 // FindNull finds NULL in *byte type s.
 //go:nosplit
@@ -214,12 +143,20 @@ func FindNull(s *byte) int
 //go:linkname FindNullW runtime.findnullw
 func FindNullW(s *uint16) int
 
-// GostringNoCopy converts a C string to a Go string.
+// GoString converts a C string to a Go string.
 // This function used by C.GoString.
 //go:nosplit
-//go:linkname GostringNoCopy runtime.gostringnocopy
-func GostringNoCopy(str *byte) string
+//go:linkname GoString runtime.gostringnocopy
+func GoString(str *byte) string
 
 // GoStringW converts a uint16 pointer to a string.
-//go:linkname GostringW runtime.gostringw
+//go:linkname GoStringW runtime.gostringw
 func GoStringW(strw *uint16) string
+
+// TestGoStringW entry point for testing.
+func TestGoStringW(w []uint16) (s string) {
+	SystemStack(func() {
+		s = GoStringW(&w[0])
+	})
+	return
+}

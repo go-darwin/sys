@@ -1,8 +1,8 @@
-// SPDX-FileCopyrightText: 2021 The Go Darwin Authors
+// Copyright 2021 The Go Darwin Authors
 // SPDX-License-Identifier: BSD-3-Clause
 
-//go:build darwin && gc
-// +build darwin,gc
+//go:build darwin
+// +build darwin
 
 package sys
 
@@ -18,6 +18,6 @@ import (
 // the same function in the address space). To be safe, don't use the
 // results of this function in any == expression. It is only safe to
 // use the result as an address at which to start executing code.
-//go:linkname FuncPC runtime.funcPC
 //go:nosplit
+//go:linkname FuncPC runtime.funcPC
 func FuncPC(f interface{}) uintptr

@@ -1,47 +1,10 @@
-// SPDX-FileCopyrightText: 2021 The Go Darwin Authors
+// Copyright 2021 The Go Darwin Authors
 // SPDX-License-Identifier: BSD-3-Clause
 
-//go:build darwin && gc
-// +build darwin,gc
+//go:build darwin
+// +build darwin
 
 package sys
-
-// itoa converts val to a decimal string.
-func itoa(val int) string {
-	if val < 0 {
-		return "-" + uitoa(uint(-val))
-	}
-	return uitoa(uint(val))
-}
-
-// uitoa converts val to a decimal string.
-func uitoa(val uint) string {
-	if val == 0 { // avoid string allocation
-		return "0"
-	}
-	var buf [20]byte // big enough for 64bit value base 10
-	i := len(buf) - 1
-	for val >= 10 {
-		q := val / 10
-		buf[i] = byte('0' + val - q*10)
-		i--
-		val = q
-	}
-	// val < 10
-	buf[i] = byte('0' + val)
-	return string(buf[i:])
-}
-
-// Error returns a string representation of the KernReturn.
-func (e KernReturn) Error() string {
-	if 0 <= int(e) && int(e) < len(errors) {
-		s := errors[e]
-		if s != "" {
-			return s
-		}
-	}
-	return "errno " + itoa(int(e))
-}
 
 // KernErrno returns common boxed Errno values, to prevent
 // allocations at runtime.
@@ -52,6 +15,18 @@ func KernErrno(e KernReturn) error {
 	default:
 		return KernReturn(e)
 	}
+}
+
+// Error returns a string representation of the KernReturn.
+func (e KernReturn) Error() string {
+	if 0 <= int(e) && int(e) < len(errors) {
+		s := errors[e]
+		if s != "" {
+			return s
+		}
+	}
+
+	return "errno " + itoa(int(e))
 }
 
 // KernReturn Error table.
