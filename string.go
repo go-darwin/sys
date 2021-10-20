@@ -152,11 +152,3 @@ func GoString(str *byte) string
 // GoStringW converts a uint16 pointer to a string.
 //go:linkname GoStringW runtime.gostringw
 func GoStringW(strw *uint16) string
-
-// TestGoStringW entry point for testing.
-func TestGoStringW(w []uint16) (s string) {
-	SystemStack(func() {
-		s = GoStringW(&w[0])
-	})
-	return
-}

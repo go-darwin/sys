@@ -5,13 +5,23 @@
 package sys_test
 
 import (
+	"bytes"
+	"fmt"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"runtime"
+	_ "runtime" // for go:linkname
 	"strconv"
 	"strings"
+	"sync"
+	"syscall"
 	"testing"
+	"time"
 	"unicode/utf8"
 	_ "unsafe" // for go:linkname
 
-	"github.com/go-darwin/sys"
+	"github.com/go-darwin/sys/testenv"
 )
 
 // Strings and slices that don't escape and fit into tmpBuf are stack allocated,
@@ -194,30 +204,138 @@ func BenchmarkArrayEqual(b *testing.B) {
 	}
 }
 
-func TestStringW(t *testing.T) {
-	strings := []string{
-		"hello",
-		"a\u5566\u7788b",
-	}
+var toRemove []string
 
-	for _, s := range strings {
-		var b []uint16
-		for _, c := range s {
-			b = append(b, uint16(c))
-			if c != rune(uint16(c)) {
-				t.Errorf("bad test: stringW can't handle >16 bit runes")
-			}
-		}
-		b = append(b, 0)
-		r := sys.TestGoStringW(b)
-		if r != s {
-			t.Errorf("gostringW(%v) = %s, want %s", b, r, s)
-		}
+func TestMain(m *testing.M) {
+	status := m.Run()
+	for _, file := range toRemove {
+		os.RemoveAll(file)
 	}
+	os.Exit(status)
 }
 
-//go:linkname runTestProg runtime.runTestProg
-func runTestProg(t *testing.T, binary, name string, env ...string) string
+var testprog struct {
+	sync.Mutex
+	dir    string
+	target map[string]buildexe
+}
+
+type buildexe struct {
+	exe string
+	err error
+}
+
+func buildTestProg(t *testing.T, binary string, flags ...string) (string, error) {
+	if *flagQuick {
+		t.Skip("-quick")
+	}
+
+	testprog.Lock()
+	defer testprog.Unlock()
+	if testprog.dir == "" {
+		dir, err := os.MkdirTemp("", "go-build")
+		if err != nil {
+			t.Fatalf("failed to create temp directory: %v", err)
+		}
+		testprog.dir = dir
+		toRemove = append(toRemove, dir)
+	}
+
+	if testprog.target == nil {
+		testprog.target = make(map[string]buildexe)
+	}
+	name := binary
+	if len(flags) > 0 {
+		name += "_" + strings.Join(flags, "_")
+	}
+	target, ok := testprog.target[name]
+	if ok {
+		return target.exe, target.err
+	}
+
+	exe := filepath.Join(testprog.dir, name+".exe")
+	cmd := exec.Command(testenv.GoToolPath(t), append([]string{"build", "-o", exe}, flags...)...)
+	cmd.Dir = "testdata/" + binary
+	out, err := testenv.CleanCmdEnv(cmd).CombinedOutput()
+	if err != nil {
+		target.err = fmt.Errorf("building %s %v: %v\n%s", binary, flags, err, out)
+		testprog.target[name] = target
+		return "", target.err
+	}
+	target.exe = exe
+	testprog.target[name] = target
+	return exe, nil
+}
+
+func runTestProg(t *testing.T, binary, name string, env ...string) string {
+	if *flagQuick {
+		t.Skip("-quick")
+	}
+
+	testenv.MustHaveGoBuild(t)
+
+	exe, err := buildTestProg(t, binary)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return runBuiltTestProg(t, exe, name, env...)
+}
+
+// sigquit is the signal to send to kill a hanging testdata program.
+// Send SIGQUIT to get a stack trace.
+var sigquit = syscall.SIGQUIT
+
+func runBuiltTestProg(t *testing.T, exe, name string, env ...string) string {
+	if *flagQuick {
+		t.Skip("-quick")
+	}
+
+	testenv.MustHaveGoBuild(t)
+
+	cmd := testenv.CleanCmdEnv(exec.Command(exe, name))
+	cmd.Env = append(cmd.Env, env...)
+	if testing.Short() {
+		cmd.Env = append(cmd.Env, "RUNTIME_TEST_SHORT=1")
+	}
+	var b bytes.Buffer
+	cmd.Stdout = &b
+	cmd.Stderr = &b
+	if err := cmd.Start(); err != nil {
+		t.Fatalf("starting %s %s: %v", exe, name, err)
+	}
+
+	// If the process doesn't complete within 1 minute,
+	// assume it is hanging and kill it to get a stack trace.
+	p := cmd.Process
+	done := make(chan bool)
+	go func() {
+		scale := 1
+		// This GOARCH/GOOS test is copied from cmd/dist/test.go.
+		// TODO(iant): Have cmd/dist update the environment variable.
+		if runtime.GOARCH == "arm" || runtime.GOOS == "windows" {
+			scale = 2
+		}
+		if s := os.Getenv("GO_TEST_TIMEOUT_SCALE"); s != "" {
+			if sc, err := strconv.Atoi(s); err == nil {
+				scale = sc
+			}
+		}
+
+		select {
+		case <-done:
+		case <-time.After(time.Duration(scale) * time.Minute):
+			p.Signal(sigquit)
+		}
+	}()
+
+	if err := cmd.Wait(); err != nil {
+		t.Logf("%s %s exit status: %v", exe, name, err)
+	}
+	close(done)
+
+	return b.String()
+}
 
 func TestLargeStringConcat(t *testing.T) {
 	output := runTestProg(t, "testprog", "stringconcat")
