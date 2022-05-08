@@ -18,6 +18,7 @@ import (
 // the same function in the address space). To be safe, don't use the
 // results of this function in any == expression. It is only safe to
 // use the result as an address at which to start executing code.
+//
 //go:nosplit
 //go:linkname FuncPC runtime.funcPC
 func FuncPC(f interface{}) uintptr

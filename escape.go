@@ -16,6 +16,7 @@ import (
 // output depends on the input.
 //
 // Noescape is inlined and currently compiles down to zero instructions.
+//
 //go:nocheckptr
 //go:nosplit
 func Noescape(p unsafe.Pointer) unsafe.Pointer {

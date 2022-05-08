@@ -23,6 +23,7 @@ import (
 // compile-time error.
 //
 // Implemented as a compile intrinsic.
+//
 //go:linkname FuncPCABI0 internal/abi.FuncPCABI0
 func FuncPCABI0(f interface{}) uintptr
 
@@ -33,5 +34,6 @@ func FuncPCABI0(f interface{}) uintptr
 // the behavior is undefined.
 //
 // Implemented as a compile intrinsic.
+//
 //go:linkname FuncPCABIInternal internal/abi.FuncPCABIInternal
 func FuncPCABIInternal(f interface{}) uintptr
