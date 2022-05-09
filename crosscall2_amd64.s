@@ -2,9 +2,6 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build darwin
-// +build darwin
-
 #include "textflag.h"
 #include "abi_amd64.h"
 
@@ -13,30 +10,25 @@
 // Saves C callee-saved registers and calls cgocallback with three arguments.
 // fn is the PC of a func(a unsafe.Pointer) function.
 // This signature is known to SWIG, so we can't change it.
-TEXT ·crosscall2(SB), NOSPLIT, $0-0
+TEXT _crosscall2(SB),NOSPLIT,$0-0
 	PUSH_REGS_HOST_TO_ABI0()
 
 	// Make room for arguments to cgocallback.
-	ADJSP $0x18
-
+	ADJSP	$0x18
 #ifndef GOOS_windows
-	MOVQ DI, 0x0(SP) // fn
-	MOVQ SI, 0x8(SP) // arg
-
+	MOVQ	DI, 0x0(SP)	/* fn */
+	MOVQ	SI, 0x8(SP)	/* arg */
 	// Skip n in DX.
-	MOVQ CX, 0x10(SP) // ctxt
-
+	MOVQ	CX, 0x10(SP)	/* ctxt */
 #else
-	MOVQ CX, 0x0(SP) // fn
-	MOVQ DX, 0x8(SP) // arg
-
+	MOVQ	CX, 0x0(SP)	/* fn */
+	MOVQ	DX, 0x8(SP)	/* arg */
 	// Skip n in R8.
-	MOVQ R9, 0x10(SP) // ctxt
-
+	MOVQ	R9, 0x10(SP)	/* ctxt */
 #endif
 
-	CALL runtime·cgocallback(SB)
+	CALL	runtime·cgocallback(SB)
 
-	ADJSP $-0x18
+	ADJSP	$-0x18
 	POP_REGS_HOST_TO_ABI0()
 	RET

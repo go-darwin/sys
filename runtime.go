@@ -25,6 +25,10 @@ const (
 	TracebackShift = iota
 )
 
+//go:noescape
+//go:linkname systemstack runtime.systemstack
+func systemstack(fn func())
+
 // SystemStack runs fn on a system stack.
 // If systemstack is called from the per-OS-thread (g0) stack, or
 // if systemstack is called from the signal handling (gsignal) stack,
@@ -41,7 +45,6 @@ const (
 //		x = bigcall(y)
 //	})
 //	... use x ...
-//
-//go:noescape
-//go:linkname SystemStack runtime.systemstack
-func SystemStack(fn func())
+func SystemStack(fn func()) {
+	systemstack(fn)
+}

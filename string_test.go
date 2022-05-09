@@ -21,6 +21,7 @@ import (
 	"unicode/utf8"
 	_ "unsafe" // for go:linkname
 
+	"github.com/go-darwin/sys"
 	"github.com/go-darwin/sys/testenv"
 )
 
@@ -200,6 +201,34 @@ func BenchmarkArrayEqual(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		if a1 != a2 {
 			b.Fatal("not equal")
+		}
+	}
+}
+
+// entry point for testing
+func GostringW(w []uint16) (s string) {
+	s = sys.GoStringW(&w[0])
+	return
+}
+
+func TestStringW(t *testing.T) {
+	strs := []string{
+		"hello",
+		"a\u5566\u7788b",
+	}
+
+	for _, s := range strs {
+		var b []uint16
+		for _, c := range s {
+			b = append(b, uint16(c))
+			if c != rune(uint16(c)) {
+				t.Errorf("bad test: stringW can't handle >16 bit runes")
+			}
+		}
+		b = append(b, 0)
+		r := GostringW(b)
+		if r != s {
+			t.Errorf("gostringW(%v) = %s, want %s", b, r, s)
 		}
 	}
 }

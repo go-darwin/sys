@@ -1,8 +1,8 @@
 // Copyright 2021 The Go Darwin Authors
 // SPDX-License-Identifier: BSD-3-Clause
 
-//go:build darwin
-// +build darwin
+//go:build amd64 && gc
+// +build amd64,gc
 
 package sys
 
@@ -11,20 +11,28 @@ import (
 	"unsafe"
 )
 
-// CgoCall calls cgo fn function.
-//
+//go:linkname cgocall runtime.cgocall
 //go:noescape
 //go:nosplit
-//go:linkname CgoCall runtime.cgocall
-func CgoCall(fn unsafe.Pointer, arg uintptr) int32
+func cgocall(fn unsafe.Pointer, arg uintptr) int32
+
+// CgoCall calls cgo fn function.
+//
+//go:nosplit
+func CgoCall(fn unsafe.Pointer, arg uintptr) int32 {
+	return cgocall(fn, arg)
+}
 
 // CString emulates C.String function without cgo.
 //
 //go:nosplit
 func CString(s string) *C_char {
-	p := (*string)(unsafe.Pointer(&make([]byte, unsafe.Sizeof(string("")))[0]))
-	*p = s
-	return (*C_char)(unsafe.Pointer(&p))
+	n := len(s)
+	ret := make([]byte, n+1)
+	copy(ret, s)
+	ret[n] = '\x00'
+
+	return (*C_char)(unsafe.Pointer(&ret[0]))
 }
 
 // CBytes emulates C.Bytes function without cgo.

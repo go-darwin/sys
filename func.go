@@ -10,6 +10,10 @@ import (
 	_ "unsafe" // for go:linkname
 )
 
+//go:nosplit
+//go:linkname FuncPC runtime.funcPC
+func funcPC(f interface{}) uintptr
+
 // FuncPC returns the entry PC of the function f.
 // It assumes that f is a func value. Otherwise the behavior is undefined.
 //
@@ -20,5 +24,6 @@ import (
 // use the result as an address at which to start executing code.
 //
 //go:nosplit
-//go:linkname FuncPC runtime.funcPC
-func FuncPC(f interface{}) uintptr
+func FuncPC(f interface{}) uintptr {
+	return funcPC(f)
+}

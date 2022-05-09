@@ -1,8 +1,8 @@
 // Copyright 2021 The Go Darwin Authors
 // SPDX-License-Identifier: BSD-3-Clause
 
-//go:build darwin
-// +build darwin
+//go:build darwin && amd64
+// +build darwin,amd64
 
 package sys
 
@@ -12,6 +12,10 @@ import (
 
 	"github.com/go-darwin/sys/unsafeheader"
 )
+
+//go:linkname syscall_syscall syscall.syscall
+//go:noescape
+func syscall_syscall(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err Errno)
 
 // Syscall calls a function in libc on behalf of the syscall package.
 //
@@ -32,10 +36,13 @@ import (
 //
 // Syscall expects a 32-bit result and tests for 32-bit -1
 // to decide there was an error.
-//
+func Syscall(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err Errno) {
+	return syscall_syscall(fn, a1, a2, a3)
+}
+
+//go:linkname syscall_syscall6 syscall.syscall6
 //go:noescape
-//go:linkname Syscall syscall.syscall
-func Syscall(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err Errno)
+func syscall_syscall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno)
 
 // Syscall6 calls a function in libc on behalf of the syscall package.
 //
@@ -59,10 +66,13 @@ func Syscall(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err Errno)
 //
 // Syscall6 expects a 32-bit result and tests for 32-bit -1
 // to decide there was an error.
-//
+func Syscall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno) {
+	return syscall_syscall6(fn, a1, a2, a3, a4, a5, a6)
+}
+
+//go:linkname syscall_syscall6X syscall.syscall6X
 //go:noescape
-//go:linkname Syscall6 syscall.syscall6
-func Syscall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno)
+func syscall_syscall6X(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno)
 
 // Syscall6X calls a function in libc on behalf of the syscall package.
 //
@@ -86,10 +96,9 @@ func Syscall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno)
 //
 // Syscall6X is like syscall6 but expects a 64-bit result
 // and tests for 64-bit -1 to decide there was an error.
-//
-//go:noescape
-//go:linkname Syscall6X syscall.syscall6X
-func Syscall6X(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno)
+func Syscall6X(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno) {
+	return syscall_syscall6X(fn, a1, a2, a3, a4, a5, a6)
+}
 
 // Syscall9 calls a function in libc on behalf of the syscall package.
 //
@@ -117,28 +126,36 @@ func Syscall6X(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno)
 // Syscall9 expects a 32-bit result and tests for 32-bit -1
 // to decide there was an error.
 //
-//go:noescape
 //go:linkname Syscall9 syscall.Syscall9
 func Syscall9(fn, a1, a2, a3, a4, a5, a6, a7, a8, a9 uintptr) (r1, r2 uintptr, err Errno)
 
+//go:linkname syscall_syscallPtr syscall.syscallPtr
+//go:noescape
+func syscall_syscallPtr(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err Errno)
+
 // SyscallPtr is like syscallX except that the libc function reports an
 // error by returning NULL and setting errno.
-//
+func SyscallPtr(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err Errno) {
+	return syscall_syscallPtr(fn, a1, a2, a3)
+}
+
+//go:linkname rawSyscall syscall.rawSyscall
 //go:noescape
-//go:linkname SyscallPtr syscall.syscallPtr
-func SyscallPtr(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err Errno)
+func rawSyscall(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err Errno)
 
 // RawSyscall calls a function in libc on behalf of the syscall package.
-//
+func RawSyscall(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err Errno) {
+	return rawSyscall(fn, a1, a2, a3)
+}
+
+//go:linkname rawSyscall6 syscall.rawSyscall6
 //go:noescape
-//go:linkname RawSyscall syscall.rawSyscall
-func RawSyscall(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err Errno)
+func rawSyscall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno)
 
 // RawSyscall6 calls a function in libc on behalf of the syscall package.
-//
-//go:noescape
-//go:linkname RawSyscall6 syscall.rawSyscall6
-func RawSyscall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno)
+func RawSyscall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno) {
+	return rawSyscall6(fn, a1, a2, a3, a4, a5, a6)
+}
 
 // RawSyscall9 calls a function in libc on behalf of the syscall package.
 //

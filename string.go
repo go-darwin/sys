@@ -15,35 +15,53 @@ const TmpStringBufSize = 32
 // TmpBuf is a temporary byte array.
 type TmpBuf [TmpStringBufSize]byte
 
+//go:linkname concatstrings runtime.concatstrings
+func concatstrings(buf *TmpBuf, a []string) string
+
 // Concatstrings implements a Go string concatenation x+y+z+...
 //
 // The operands are passed in the slice a.
 // If buf != nil, the compiler has determined that the result does not
 // escape the calling function, so the string data can be stored in buf
 // if small enough.
-//
-//go:linkname Concatstrings runtime.concatstrings
-func Concatstrings(buf *TmpBuf, a []string) string
+func Concatstrings(buf *TmpBuf, a []string) string {
+	return concatstrings(buf, a)
+}
+
+//go:linkname concatstring2 runtime.concatstring2
+func concatstring2(buf *TmpBuf, a0, a1 string) string
 
 // Concatstring2 concats two strings.
-//
-//go:linkname Concatstring2 runtime.concatstring2
-func Concatstring2(buf *TmpBuf, a0, a1 string) string
+func Concatstring2(buf *TmpBuf, a0, a1 string) string {
+	return concatstring2(buf, a0, a1)
+}
+
+//go:linkname concatstring3 runtime.concatstring3
+func concatstring3(buf *TmpBuf, a0, a1, a2 string) string
 
 // Concatstring3 concats three strings.
-//
-//go:linkname Concatstring3 runtime.concatstring3
-func Concatstring3(buf *TmpBuf, a0, a1, a2 string) string
+func Concatstring3(buf *TmpBuf, a0, a1, a2 string) string {
+	return concatstring3(buf, a0, a1, a2)
+}
+
+//go:linkname concatstring4 runtime.concatstring4
+func concatstring4(buf *TmpBuf, a0, a1, a2, a3 string) string
 
 // Concatstring4 concats four strings.
-//
-//go:linkname Concatstring4 runtime.concatstring4
-func Concatstring4(buf *TmpBuf, a0, a1, a2, a3 string) string
+func Concatstring4(buf *TmpBuf, a0, a1, a2, a3 string) string {
+	return concatstring4(buf, a0, a1, a2, a3)
+}
+
+//go:linkname concatstring5 runtime.concatstring5
+func concatstring5(buf *TmpBuf, a0, a1, a2, a3, a4 string) string
 
 // Concatstring5 concats five strings.
-//
-//go:linkname Concatstring5 runtime.concatstring5
-func Concatstring5(buf *TmpBuf, a0, a1, a2, a3, a4 string) string
+func Concatstring5(buf *TmpBuf, a0, a1, a2, a3, a4 string) string {
+	return concatstring5(buf, a0, a1, a2, a3, a4)
+}
+
+//go:linkname slicebytetostring runtime.slicebytetostring
+func slicebytetostring(buf *TmpBuf, ptr *byte, n int) (str string)
 
 // SliceByteToString converts a byte slice to a string.
 //
@@ -53,20 +71,29 @@ func Concatstring5(buf *TmpBuf, a0, a1, a2, a3, a4 string) string
 //
 // Buf is a fixed-size buffer for the result,
 // it is not nil if the result does not escape.
-//
-//go:linkname SliceByteToString runtime.slicebytetostring
-func SliceByteToString(buf *TmpBuf, ptr *byte, n int) (str string)
+func SliceByteToString(buf *TmpBuf, ptr *byte, n int) (str string) {
+	return slicebytetostring(buf, ptr, n)
+}
+
+//go:linkname stringDataOnStack runtime.stringDataOnStack
+func stringDataOnStack(s string) bool
 
 // StringDataOnStack reports whether the string's data is
 // stored on the current goroutine's stack.
-//
-//go:linkname StringDataOnStack runtime.stringDataOnStack
-func StringDataOnStack(s string) bool
+func StringDataOnStack(s string) bool {
+	return stringDataOnStack(s)
+}
+
+//go:linkname rawstringtmp runtime.rawstringtmp
+func rawstringtmp(buf *TmpBuf, l int) (s string, b []byte)
 
 // RawStringTmp returns a "string" referring to the actual []byte bytes.
-//
-//go:linkname RawStringTmp runtime.rawstringtmp
-func RawStringTmp(buf *TmpBuf, l int) (s string, b []byte)
+func RawStringTmp(buf *TmpBuf, l int) (s string, b []byte) {
+	return rawstringtmp(buf, l)
+}
+
+//go:linkname slicebytetostringtmp runtime.slicebytetostringtmp
+func slicebytetostringtmp(ptr *byte, n int) (str string)
 
 // SliceByteToStringTmp returns a "string" referring to the actual []byte bytes.
 //
@@ -82,24 +109,33 @@ func RawStringTmp(buf *TmpBuf, l int) (s string, b []byte)
 //     where k is []byte, T1 to Tn is a nesting of struct and array literals.
 //   - Used for "<"+string(b)+">" concatenation where b is []byte.
 //   - Used for string(b)=="foo" comparison where b is []byte.
-//
-//go:linkname SliceByteToStringTmp runtime.slicebytetostringtmp
-func SliceByteToStringTmp(ptr *byte, n int) (str string)
+func SliceByteToStringTmp(ptr *byte, n int) (str string) {
+	return slicebytetostringtmp(ptr, n)
+}
+
+//go:linkname stringtoslicebyte runtime.stringtoslicebyte
+func stringtoslicebyte(buf *TmpBuf, s string) []byte
 
 // StringToSliceByte converts a string to a byte slice.
-//
-//go:linkname StringToSliceByte runtime.stringtoslicebyte
-func StringToSliceByte(buf *TmpBuf, s string) []byte
+func StringToSliceByte(buf *TmpBuf, s string) []byte {
+	return stringtoslicebyte(buf, s)
+}
+
+//go:linkname stringtoslicerune runtime.stringtoslicerune
+func stringtoslicerune(buf *[TmpStringBufSize]rune, s string) []rune
 
 // StringToSliceRune converts a string to a rune slice.
-//
-//go:linkname StringToSliceRune runtime.stringtoslicerune
-func StringToSliceRune(buf *[TmpStringBufSize]rune, s string) []rune
+func StringToSliceRune(buf *[TmpStringBufSize]rune, s string) []rune {
+	return stringtoslicerune(buf, s)
+}
+
+//go:linkname slicerunetostring runtime.slicerunetostring
+func slicerunetostring(buf *TmpBuf, a []rune) string
 
 // SliceRuneToString converts a rune slice to a string.
-//
-//go:linkname SliceRuneToString runtime.slicerunetostring
-func SliceRuneToString(buf *TmpBuf, a []rune) string
+func SliceRuneToString(buf *TmpBuf, a []rune) string {
+	return slicerunetostring(buf, a)
+}
 
 // StringStruct actual string type struct.
 type StringStruct struct {
@@ -113,65 +149,110 @@ type StringStructDWARF struct {
 	Length int
 }
 
+//go:linkname stringStructOf runtime.stringStructOf
+func stringStructOf(sp *string) *StringStruct
+
 // StringStructOf converts a sp to StringStruct.
-//
-//go:linkname StringStructOf runtime.StringStructOf
-func StringStructOf(sp *string) *StringStruct
+func StringStructOf(sp *string) *StringStruct {
+	return stringStructOf(sp)
+}
+
+//go:linkname intstring runtime.intstring
+func intstring(buf *[4]byte, v int64) (s string)
 
 // IntString converts a int64 v to string.
-//
-//go:linkname IntString runtime.intstring
-func IntString(buf *[4]byte, v int64) (s string)
+func IntString(buf *[4]byte, v int64) (s string) {
+	return intstring(buf, v)
+}
+
+//go:linkname rawstring runtime.rawstring
+func rawstring(size int) (s string, b []byte)
 
 // RawString allocates storage for a new string. The returned
 // string and byte slice both refer to the same storage.
 // The storage is not zeroed. Callers should use
 // b to set the string contents and then drop b.
-//
-//go:linkname RawString runtime.rawstring
-func RawString(size int) (s string, b []byte)
+func RawString(size int) (s string, b []byte) {
+	return rawstring(size)
+}
+
+//go:linkname rawbyteslice runtime.rawbyteslice
+func rawbyteslice(size int) (b []byte)
 
 // RawByteSlice allocates a new byte slice. The byte slice is not zeroed.
-//
-//go:linkname RawByteSlice runtime.rawbyteslice
-func RawByteSlice(size int) (b []byte)
+func RawByteSlice(size int) (b []byte) {
+	return rawbyteslice(size)
+}
+
+//go:linkname rawruneslice runtime.rawruneslice
+func rawruneslice(size int) (b []rune)
 
 // RawRuneSlice allocates a new rune slice. The rune slice is not zeroed.
-//
-//go:linkname RawRuneSlice runtime.rawruneslice
-func RawRuneSlice(size int) (b []rune)
+func RawRuneSlice(size int) (b []rune) {
+	return rawruneslice(size)
+}
+
+//go:linkname gobytes runtime.gobytes
+func gobytes(p *byte, n int) (b []byte)
 
 // GoBytes converts a n length C pointer to Go byte slice.
 // This function used by C.GoBytes.
-//
-//go:linkname GoBytes runtime.gobytes
-func GoBytes(p *byte, n int) (b []byte)
+func GoBytes(p *byte, n int) (b []byte) {
+	return gobytes(p, n)
+}
+
+//go:linkname gostringn runtime.gostringn
+func gostringn(p *byte, l int) string
 
 // GostringN converts a l length C string to Go string.
 // This function used by C.GostringN.
-//
-//go:linkname GoStringN runtime.gostringn
-func GoStringN(p *byte, l int) string
+func GoStringN(p *byte, l int) string {
+	return gostringn(p, l)
+}
+
+//go:nosplit
+//go:linkname findnull runtime.findnull
+func findnull(s *byte) int
 
 // FindNull finds NULL in *byte type s.
 //
 //go:nosplit
-//go:linkname FindNull runtime.findnull
-func FindNull(s *byte) int
+func FindNull(s *byte) int {
+	return findnull(s)
+}
+
+//go:linkname findnullw runtime.findnullw
+func findnullw(s *uint16) int
 
 // FindNullW finds NULL in *uint16 type s.
-//
-//go:linkname FindNullW runtime.findnullw
-func FindNullW(s *uint16) int
+func FindNullW(s *uint16) int {
+	return findnullw(s)
+}
+
+//go:nosplit
+//go:linkname gostringnocopy runtime.gostringnocopy
+func gostringnocopy(str *byte) string
 
 // GoString converts a C string to a Go string.
 // This function used by C.GoString.
 //
 //go:nosplit
-//go:linkname GoString runtime.gostringnocopy
-func GoString(str *byte) string
+func GoString(str *byte) string {
+	return gostringnocopy(str)
+}
+
+func gostring(s *int8) string {
+	n, arr := 0, (*[1 << 20]byte)(unsafe.Pointer(s))
+	for arr[n] != 0 {
+		n++
+	}
+	return string(arr[:n])
+}
+
+//go:linkname gostringw runtime.gostringw
+func gostringw(strw *uint16) string
 
 // GoStringW converts a uint16 pointer to a string.
-//
-//go:linkname GoStringW runtime.gostringw
-func GoStringW(strw *uint16) string
+func GoStringW(strw *uint16) string {
+	return gostringw(strw)
+}
