@@ -36,6 +36,8 @@ func ccall(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err Errno)
 //
 // Ccall expects a 32-bit result and tests for 32-bit -1
 // to decide there was an error.
+//
+//go:nosplit
 func Ccall(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err Errno) {
 	return ccall(fn, a1, a2, a3)
 }
@@ -66,6 +68,8 @@ func ccall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno)
 //
 // Ccall6 expects a 32-bit result and tests for 32-bit -1
 // to decide there was an error.
+//
+//go:nosplit
 func Ccall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno) {
 	return ccall6(fn, a1, a2, a3, a4, a5, a6)
 }
@@ -96,6 +100,8 @@ func ccall6X(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno)
 //
 // Ccall6X is like syscall6 but expects a 64-bit result
 // and tests for 64-bit -1 to decide there was an error.
+//
+//go:nosplit
 func Ccall6X(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno) {
 	return ccall6X(fn, a1, a2, a3, a4, a5, a6)
 }
@@ -127,6 +133,7 @@ func Ccall6X(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno) {
 // to decide there was an error.
 //
 //go:linkname Ccall9 syscall.Syscall9
+//go:nosplit
 func Ccall9(fn, a1, a2, a3, a4, a5, a6, a7, a8, a9 uintptr) (r1, r2 uintptr, err Errno)
 
 //go:linkname ccallPtr syscall.syscallPtr
@@ -135,6 +142,8 @@ func ccallPtr(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err Errno)
 
 // CcallPtr is like syscallX except that the libc function reports an
 // error by returning NULL and setting errno.
+//
+//go:nosplit
 func CcallPtr(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err Errno) {
 	return ccallPtr(fn, a1, a2, a3)
 }
@@ -144,6 +153,8 @@ func CcallPtr(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err Errno) {
 func rawCcall(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err Errno)
 
 // RawCcall calls a function in libc on behalf of the syscall package.
+//
+//go:nosplit
 func RawCcall(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err Errno) {
 	return rawCcall(fn, a1, a2, a3)
 }
@@ -153,6 +164,8 @@ func RawCcall(fn, a1, a2, a3 uintptr) (r1, r2 uintptr, err Errno) {
 func rawSyscall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno)
 
 // RawCcall6 calls a function in libc on behalf of the syscall package.
+//
+//go:nosplit
 func RawCcall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno) {
 	return rawSyscall6(fn, a1, a2, a3, a4, a5, a6)
 }
@@ -160,6 +173,7 @@ func RawCcall6(fn, a1, a2, a3, a4, a5, a6 uintptr) (r1, r2 uintptr, err Errno) {
 // RawCcall9 calls a function in libc on behalf of the syscall package.
 //
 //go:noescape
+//go:nosplit
 func RawCcall9(fn, a1, a2, a3, a4, a5, a6, a7, a8, a9 uintptr) (r1, r2 uintptr, err Errno)
 
 // ByteSliceFromString returns a NUL-terminated slice of bytes
