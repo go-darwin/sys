@@ -8,8 +8,8 @@
 #include "textflag.h"
 #include "funcdata.h"
 
-// func RawSyscall9(fn, a1, a2, a3, a4, a5, a6, a7, a8, a9 uintptr) (r1, r2 uintptr, err Errno)
-TEXT ·RawSyscall9(SB), NOSPLIT, $0-104
+// func RawCcall9(fn, a1, a2, a3, a4, a5, a6, a7, a8, a9 uintptr) (r1, r2 uintptr, err Errno)
+TEXT ·RawCcall9(SB), NOSPLIT, $0-104
 	MOVQ fn+0(FP), AX   // syscall entry
 	MOVQ a1+8(FP), DI
 	MOVQ a2+16(FP), SI
